@@ -1,68 +1,83 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 
-const EMOJIS = ['😘', '💋', '😘', '💋', '😍', '💕', '😘']
+const KISSES = ['😘', '💋', '😘', '💕', '😚', '💋']
+const MAX_PARTICLES = 28
 
-function createParticle(container) {
+const prefersReducedMotion = () =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function spawn(container, { burst = false, x } = {}) {
+  if (container.childElementCount >= MAX_PARTICLES) return
+
   const el = document.createElement('span')
-  el.className = 'particle'
-  el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
+  el.className = burst ? 'kiss kiss--burst' : 'kiss'
+  el.textContent = KISSES[Math.floor(Math.random() * KISSES.length)]
+  el.setAttribute('aria-hidden', 'true')
 
-  const size = Math.random() * 28 + 18 // 18–46px
-  const left = Math.random() * 100       // 0–100vw
-  const duration = Math.random() * 6 + 6 // 6–12s
-  const delay = Math.random() * 4        // 0–4s
-  const drift = (Math.random() - 0.5) * 120 // sway ngang
+  const size = burst ? 28 + Math.random() * 20 : 18 + Math.random() * 22
+  const duration = burst ? 2.6 + Math.random() * 1.6 : 9 + Math.random() * 7
+  const left = x ?? Math.random() * 100
 
-  el.style.cssText = `
-    left: ${left}vw;
-    font-size: ${size}px;
-    animation-duration: ${duration}s;
-    animation-delay: ${delay}s;
-    --drift: ${drift}px;
-    opacity: 0;
-  `
+  el.style.setProperty('--x', `${left}%`)
+  el.style.setProperty('--size', `${size}px`)
+  el.style.setProperty('--dur', `${duration}s`)
+  el.style.setProperty('--sway', `${(Math.random() - 0.5) * 90}px`)
+  el.style.setProperty('--tilt', `${(Math.random() - 0.5) * 36}deg`)
 
   container.appendChild(el)
-
-  // Xóa sau khi animation xong
-  el.addEventListener('animationend', () => el.remove())
+  el.addEventListener('animationend', () => el.remove(), { once: true })
 }
 
 export default function App() {
-  const containerRef = useRef(null)
+  const sky = useRef(null)
+  const [sent, setSent] = useState(0)
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const container = sky.current
+    if (!container || prefersReducedMotion()) return
 
-    // Spawn liên tục
-    const interval = setInterval(() => {
-      createParticle(container)
-    }, 350)
+    for (let i = 0; i < 6; i++) setTimeout(() => spawn(container), i * 500)
 
-    // Spawn ngay lúc đầu
-    for (let i = 0; i < 14; i++) {
-      setTimeout(() => createParticle(container), i * 100)
+    const timer = setInterval(() => {
+      if (!document.hidden) spawn(container)
+    }, 1100)
+    return () => clearInterval(timer)
+  }, [])
+
+  const sendKiss = useCallback(() => {
+    setSent((n) => n + 1)
+    const container = sky.current
+    if (!container || prefersReducedMotion()) return
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => spawn(container, { burst: true, x: 30 + Math.random() * 40 }), i * 90)
     }
-
-    return () => clearInterval(interval)
   }, [])
 
   return (
-    <div className="home">
-      <div className="particles" ref={containerRef} />
+    <main className="page">
+      <div className="sky" ref={sky} aria-hidden="true" />
 
-      <div className="hero">
-        <div className="badge">✨ Welcome</div>
-        <h1 className="title">
-          Hala <span className="accent">😘</span>
+      <article className="note">
+        <span className="tape" aria-hidden="true" />
+        <p className="note__to">Gửi Hala,</p>
+        <h1 className="note__title">
+          có một người đang nhớ Hala
+          <span className="note__heart" aria-hidden="true"> ♥</span>
         </h1>
-        <p className="subtitle">
-          Nơi những nụ hôn nổi lên mãi mãi
+        <p className="note__body">
+          Không có gì to tát đâu. Chỉ là một góc nhỏ để nói rằng
+          hôm nay, và những ngày sau nữa, Hala vẫn luôn được thương.
         </p>
-        <button className="cta">Bắt đầu ngay</button>
-      </div>
-    </div>
+
+        <button type="button" className="kiss-btn" onClick={sendKiss}>
+          Gửi một nụ hôn <span aria-hidden="true">💋</span>
+        </button>
+
+        <p className="note__count" aria-live="polite">
+          {sent === 0 ? 'Bấm thử xem…' : `Đã gửi ${sent} nụ hôn`}
+        </p>
+      </article>
+    </main>
   )
 }

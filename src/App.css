@@ -1,125 +1,146 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+:root {
+  --wine-900: #2b1217;
+  --wine-800: #3a181f;
+  --rose-400: #e8788a;
+  --rose-500: #d9536b;
+  --paper: #fff4ea;
+  --ink: #4a2a2f;
+  --ink-soft: #7a5459;
 
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ── Home ── */
-.home {
-  min-height: 100vh;
-  background: radial-gradient(ellipse at 60% 40%, #1a0a2e 0%, #0d0d1a 60%, #000 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  font-family: 'Inter', sans-serif;
+  --font-script: 'Dancing Script', cursive;
+  --font-body: 'Patrick Hand', 'Segoe Print', cursive;
 }
 
-/* ── Particle container ── */
-.particles {
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 5vw, 3rem);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232, 120, 138, 0.16), transparent 60%),
+    var(--wine-900);
+  font-family: var(--font-body);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Floating kisses ── */
+.sky {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  overflow: hidden;
+  z-index: 2; /* nổi trên tờ giấy để không bị che */
 }
 
-.particle {
+.kiss {
   position: absolute;
-  bottom: -60px;
-  user-select: none;
-  animation: floatUp linear forwards;
+  left: var(--x);
+  bottom: -48px;
+  font-size: var(--size);
+  line-height: 1;
+  opacity: 0;
+  animation: rise var(--dur) ease-in forwards;
   will-change: transform, opacity;
 }
 
-@keyframes floatUp {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg) scale(0.6);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.9;
-  }
-  80% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-110vh) translateX(var(--drift)) rotate(360deg) scale(1.1);
-    opacity: 0;
-  }
+.kiss--burst {
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* ── Hero ── */
-.hero {
+@keyframes rise {
+  0%   { transform: translate(0, 0) rotate(0); opacity: 0; }
+  12%  { opacity: 0.85; }
+  85%  { opacity: 0.6; }
+  100% { transform: translate(var(--sway), -110dvh) rotate(var(--tilt)); opacity: 0; }
+}
+
+/* ── Note card ── */
+.note {
   position: relative;
   z-index: 1;
-  text-align: center;
+  width: min(100%, 30rem);
+  padding: clamp(2rem, 6vw, 3rem) clamp(1.5rem, 6vw, 2.75rem);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 6px;
+  transform: rotate(-1.2deg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 18px 40px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.4rem;
-  padding: 2rem;
+  gap: 1rem;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.3rem 1rem;
-  border-radius: 999px;
-  background: rgba(255, 200, 50, 0.12);
-  border: 1px solid rgba(255, 200, 50, 0.3);
-  color: #ffd966;
-  font-size: 0.85rem;
+.tape {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 96px;
+  height: 28px;
+  transform: translateX(-50%) rotate(3deg);
+  background: rgba(232, 120, 138, 0.55);
+  border-left: 2px dotted rgba(255, 255, 255, 0.5);
+  border-right: 2px dotted rgba(255, 255, 255, 0.5);
+}
+
+.note__to {
+  font-family: var(--font-script);
+  font-size: 1.6rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  backdrop-filter: blur(8px);
+  color: var(--rose-500);
 }
 
-.title {
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.1;
-  text-shadow: 0 0 60px rgba(180, 100, 255, 0.5);
-  letter-spacing: -0.02em;
-}
-
-.accent {
-  font-size: 0.85em;
-  filter: drop-shadow(0 0 24px rgba(255, 220, 0, 0.8));
-  animation: pulse 2.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 220, 0, 0.6)); }
-  50%       { filter: drop-shadow(0 0 40px rgba(255, 220, 0, 1)); }
-}
-
-.subtitle {
-  font-size: clamp(1rem, 3vw, 1.3rem);
-  color: rgba(255, 255, 255, 0.55);
-  max-width: 380px;
-  line-height: 1.6;
-}
-
-.cta {
-  margin-top: 0.5rem;
-  padding: 0.85rem 2.5rem;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #a855f7, #6366f1);
-  color: #fff;
-  font-size: 1rem;
+.note__title {
+  font-family: var(--font-script);
+  font-size: clamp(2.1rem, 8vw, 3rem);
   font-weight: 700;
-  font-family: inherit;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.note__heart {
+  color: var(--rose-500);
+}
+
+.note__body {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* ── Button ── */
+.kiss-btn {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  min-height: 48px;
+  padding: 0.75rem 1.6rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--rose-500);
+  color: #fff;
+  font: 400 1.2rem var(--font-body);
   cursor: pointer;
-  box-shadow: 0 4px 30px rgba(168, 85, 247, 0.45);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
-.cta:hover {
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 8px 40px rgba(168, 85, 247, 0.65);
+.kiss-btn:hover { background: #c4405a; }
+.kiss-btn:active { transform: scale(0.97); }
+.kiss-btn:focus-visible {
+  outline: 3px solid var(--wine-800);
+  outline-offset: 3px;
 }
 
-.cta:active {
-  transform: scale(0.97);
+.note__count {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  min-height: 1.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note { transform: none; }
+  .kiss-btn { transition: none; }
 }
