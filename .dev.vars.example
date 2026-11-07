@@ -1,6 +1,0 @@
-# Cloudflare Pages + Workers environment variables
-# Copy to .dev.vars for local development (this file is gitignored)
-
-# Example:
-# MY_SECRET=supersecret
-# API_BASE_URL=https://api.example.com
